@@ -71,9 +71,7 @@ cgroup['allow'] = 'lxc.cgroup.devices.allow'
 
 def FakeSection(fp):
     content = u"[DEFAULT]\n%s" % fp.read()
-    print "CONTENT: ", content
-
-
+ 
     return StringIO(content)
 
 
