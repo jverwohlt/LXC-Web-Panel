@@ -50,11 +50,14 @@ config.readfp(open('lwp.conf'))
 SECRET_KEY = '\xb13\xb6\xfb+Z\xe8\xd1n\x80\x9c\xe7KM' \
              '\x1c\xc1\xa7\xf8\xbeY\x9a\xfa<.'
 
+#SECRET_KEY = b'f9ecc91f43963acd680952530f1363cc92a02a6c067b587a'
+
+
 DEBUG = config.getboolean('global', 'debug')
 DATABASE = config.get('database', 'file')
 ADDRESS = config.get('global', 'address')
 PORT = int(config.get('global', 'port'))
-
+PROPAGATE_EXCEPTIONS = True
 
 # Flask app
 app = Flask(__name__)

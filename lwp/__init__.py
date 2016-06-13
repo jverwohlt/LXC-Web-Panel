@@ -71,7 +71,7 @@ cgroup['allow'] = 'lxc.cgroup.devices.allow'
 
 def FakeSection(fp):
     content = u"[DEFAULT]\n%s" % fp.read()
-
+ 
     return StringIO(content)
 
 
@@ -271,7 +271,15 @@ def get_net_settings():
         filename = '/etc/default/lxc'
     if not file_exist(filename):
         return False
-    config = configparser.SafeConfigParser()
+    defaults = {'USE_LXC_BRIDGE': '',
+                'LXC_BRIDGE': '',
+                'LXC_ADDR': '',
+                'LXC_NETMASK': '',
+                'LXC_NETWORK': '',
+                'LXC_DHCP_RANGE': '',
+                'LXC_DHCP_MAX': ''}
+
+    config = configparser.SafeConfigParser(defaults=defaults)
     cfg = {}
     config.readfp(FakeSection(open(filename)))
     cfg['use'] = config.get('DEFAULT', 'USE_LXC_BRIDGE').strip('"')
