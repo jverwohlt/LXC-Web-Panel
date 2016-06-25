@@ -36,7 +36,7 @@ import sqlite3
 import os
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash, jsonify
+    render_template, flash, jsonify, make_response
 
 try:
     import configparser
@@ -55,6 +55,8 @@ DATABASE = config.get('database', 'file')
 ADDRESS = config.get('global', 'address')
 PORT = int(config.get('global', 'port'))
 
+ATT_ENABLE = config.getboolean('attach', 'enable')
+lxc.ATT_OPTS = config.get('attach', 'options')
 
 # Flask app
 app = Flask(__name__)
@@ -117,7 +119,8 @@ def home():
         return render_template('index.html', containers=lxc.ls(),
                                containers_all=containers_all,
                                dist=lwp.check_ubuntu(),
-                               templates=lwp.get_templates_list())
+                               templates=lwp.get_templates_list(),
+                               attach=ATT_ENABLE)
     return render_template('login.html')
 
 
@@ -602,6 +605,23 @@ def action():
                         flash(u'Unable to start %s!' % name, 'error')
                 except lxc.ContainerAlreadyRunning:
                     flash(u'Container %s is already running!' % name, 'error')
+            elif action == 'attach':
+                try:
+                    answer = lxc.attach(name)
+                    answer = answer.split('\n')
+                    header = []
+                    for s in answer:
+                        if s.strip() == "":
+                            break
+                        header.append(s.strip())
+                    answer = answer[len(header)+1:]
+                    resp = make_response("\n".join(answer))
+                    for s in header:
+                        a=s.split(':')
+                        resp.headers[a[0].strip()]=a[1].strip()
+                    return resp
+                except lxc.ContainerNotRunning:
+                    flash(u'Container %s is not running!' % name, 'error')
             elif action == 'stop':
                 try:
                     if lxc.stop(name) == 0:
